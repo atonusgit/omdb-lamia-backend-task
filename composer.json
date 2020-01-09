@@ -1,0 +1,6 @@
+{
+    "name": "anton/omdb-lamia-backend-task",
+    "require": {
+        "elementaryframework/water-pipe": "^1.3"
+    }
+}
