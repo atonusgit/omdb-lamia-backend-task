@@ -9,7 +9,7 @@ use OmdbApp\OmdbCall;
 
 /**
  * ElementaryFramework
- * @source https://dev.to/na2axl/how-to-create-a-restful-api-with-php-and-the-elementary-framework-30ij
+ * @source https://github.com/ElementaryFramework/WaterPipe
  */
 use ElementaryFramework\WaterPipe\WaterPipe;
 use ElementaryFramework\WaterPipe\HTTP\Request\Request;
@@ -19,20 +19,30 @@ use ElementaryFramework\WaterPipe\HTTP\Response\ResponseStatus;
 
 $basePipe = new WaterPipe;
 
-$basePipe->request( '/api/getMovies', function ( Request $req, Response $res ) {
+$basePipe->request( '/api/getMovie', function ( Request $req, Response $res ) {
 
-	$call = new OmdbCall;
-	$json = $call->CallOmdb( OmdbConfig::OmdbUrl . '?apiKey=' . OmdbConfig::OmdbApiKey . '&t=a' );
+	$params = $req->getParams();
 
-	$header = new ResponseHeader();
-	$header->setContentType( "application/json" );
-	$status = new ResponseStatus( ResponseStatus::OkCode );
+	if ( !empty( $params ) ) {
 
-	$res
-		->setHeader( $header )
-		->setStatus( $status )
-		->setBody( $json )
-		->send();
+		$call = new OmdbCall;
+		$json = $call->CallOmdb( OmdbConfig::OmdbUrl . '?apiKey=' . OmdbConfig::OmdbApiKey . '&t=' . $params["title"] . '&y=' . $params["year"] . '&plot=' . $params["plot"] );
+
+		$header = new ResponseHeader();
+		$header->setContentType( "application/json" );
+		$status = new ResponseStatus( ResponseStatus::OkCode );
+
+		$res
+			->setHeader( $header )
+			->setStatus( $status )
+			->setBody( $json )
+			->send();
+
+	} else {
+
+		$res->sendText( "Welcome to use OMDB movie search. Use parameters title, year and plot for searching." );
+
+	}
 
 } );
 
