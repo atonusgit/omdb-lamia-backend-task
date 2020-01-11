@@ -1,11 +1,11 @@
 <?php
 
 require( 'vendor/autoload.php' );
-require( 'src/OmdbConfig.php' );
-require( 'src/OmdbCall.php' );
+require( 'src/searchMBConfig.php' );
+require( 'src/searchMBCall.php' );
 
-use OmdbApp\OmdbConfig;
-use OmdbApp\OmdbCall;
+use searchMBApp\searchMBConfig;
+use searchMBApp\searchMBCall;
 
 /**
  * ElementaryFramework
@@ -23,10 +23,16 @@ $basePipe->request( '/api/getMovie', function ( Request $req, Response $res ) {
 
 	$params = $req->getParams();
 
-	if ( !empty( $params ) ) {
+	if ( empty( $params['title'] )
+		&& empty( $params['year'] )
+		&& empty( $params['plot'] ) ) {
 
-		$call = new OmdbCall;
-		$json = $call->CallOmdb( OmdbConfig::OmdbUrl . '?apiKey=' . OmdbConfig::OmdbApiKey . '&t=' . $params["title"] . '&y=' . $params["year"] . '&plot=' . $params["plot"] );
+		$res->sendText( "Welcome to use OMDB movie search. Use parameters ?title=, ?year= and/or ?plot= for searching." );
+
+	} else {
+
+		$call = new searchMBCall;
+		$json = $call->searchMBCall( searchMBConfig::OmdbUrl . '?apiKey=' . searchMBConfig::OmdbApiKey . '&t=' . $params["title"] . '&y=' . $params["year"] . '&plot=' . $params["plot"] );
 
 		$header = new ResponseHeader();
 		$header->setContentType( "application/json" );
@@ -38,9 +44,32 @@ $basePipe->request( '/api/getMovie', function ( Request $req, Response $res ) {
 			->setBody( $json )
 			->send();
 
-	} else {
+	}
 
-		$res->sendText( "Welcome to use OMDB movie search. Use parameters title, year and plot for searching." );
+} );
+
+$basePipe->request( '/api/getBook', function ( Request $req, Response $res ) {
+
+	$params = $req->getParams();
+
+	if ( empty( $params['isbn'] ) ) {
+
+		$res->sendText( "Welcome to use OpenLibrary search. Use parameter ?isbn= for searching." );
+
+	} else {
+			
+		$call = new searchMBCall;
+		$json = $call->searchMBCall( searchMBConfig::OpenLibraryUrl . 'api/books?bibkeys=ISBN:' . $params["isbn"] . '&format=json&jscmd=data');
+
+		$header = new ResponseHeader();
+		$header->setContentType( "application/json" );
+		$status = new ResponseStatus( ResponseStatus::OkCode );
+
+		$res
+			->setHeader( $header )
+			->setStatus( $status )
+			->setBody( $json )
+			->send();
 
 	}
 

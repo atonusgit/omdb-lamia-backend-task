@@ -1,10 +1,10 @@
 <?php
 
-namespace OmdbApp;
+namespace searchMBApp;
 
-class OmdbCall {
+class searchMBCall {
 
-	public function CallOmdb( $url ) {
+	public function searchMBCall( $url ) {
 
 		$curl = curl_init();
 		curl_setopt( $curl, CURLOPT_URL, $url );
