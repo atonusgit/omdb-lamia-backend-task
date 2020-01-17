@@ -31,7 +31,7 @@ $basePipe = new WaterPipe;
 
 $basePipe->get( "/login", function ( Request $req, Response $res ) {
 
-	$res->sendText( "Send a POST request to this endpoint. Add username and password to your request body in order to receive your access token. Try /help endpoint to get help." );
+	$res->sendText( "Send a POST request to this endpoint.\n\nAdd username and password to your request body in order to receive your access token.\n\nTry /help endpoint to get help." );
 
 } );
 
@@ -149,11 +149,13 @@ $basePipe->request( "/help", function ( Request $req, Response $res ) {
 		"\n\t3. Save your unique access token" .
 		"\n\n\tMake requests to OMDb" .
 		"\n\t1. Get your OMDb API key from http://www.omdbapi.com/" .
-		"\n\t2. Make request to /getMovie and attach your access token to the request header (key: Authorization, value: Bearer <access token>)" .
-		"\n\t3. Follow instructions" .
+		"\n\t2. Attach your unique access token to the GET/POST request header (key: Authorization, value: Bearer <access token>)" .
+		"\n\t3. Make GET/POST request to /getMovie" .
+		"\n\t4. Follow instructions" .
 		"\n\n\tMake requests to OpenLibrary" .
-		"\n\t1. Make request to /getBook and attach your access token to the request header (key: Authorization, value: Bearer <access token>)" .
-		"\n\t2. Follow instructions"
+		"\n\t1. Attach your unique access token to the request header (key: Authorization, value: Bearer <access token>)" .
+		"\n\t2. Make GET/POST request to /getBook" .
+		"\n\t3. Follow instructions"
 	);
 
 } );

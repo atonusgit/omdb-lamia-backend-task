@@ -47,8 +47,16 @@ class Security {
 
 	private static function verify_user( $username ) {
 
-		return config::users[$username] ? true : false;
+		if ( isset ( config::users[$username] ) ) {
 
+			return config::users[$username] ? true : false;
+
+		} else {
+
+			return false;
+
+		}
+			
 	}
 
 	public static function verify_jwt( $jwt ) {
