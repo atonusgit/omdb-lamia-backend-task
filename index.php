@@ -3,9 +3,11 @@
 require( 'vendor/autoload.php' );
 require( 'src/searchMBConfig.php' );
 require( 'src/searchMBCall.php' );
+require( 'src/searchMBSecurity.php' );
 
 use searchMBApp\searchMBConfig;
 use searchMBApp\searchMBCall;
+use searchMBApp\searchMBSecurity;
 
 /**
  * ElementaryFramework
@@ -17,59 +19,118 @@ use ElementaryFramework\WaterPipe\HTTP\Response\Response;
 use ElementaryFramework\WaterPipe\HTTP\Response\ResponseHeader;
 use ElementaryFramework\WaterPipe\HTTP\Response\ResponseStatus;
 
+/**
+ * PHP-JWT
+ * @source https://github.com/firebase/php-jwt
+ */
+use \Firebase\JWT\JWT;
+
 $basePipe = new WaterPipe;
 
-$basePipe->request( '/api/getMovie', function ( Request $req, Response $res ) {
+$basePipe->get( "/login", function ( Request $req, Response $res ) {
 
-	$params = $req->getParams();
+	$res->sendText( "Send a POST request to this endpoint. Attach username and password in order to get your access token." );
 
-	if ( empty( $params['title'] )
-		&& empty( $params['year'] )
-		&& empty( $params['plot'] ) ) {
+} );
 
-		$res->sendText( "Welcome to use OMDB movie search. Use parameters ?title=, ?year= and/or ?plot= for searching." );
+$basePipe->post( "/login", function ( Request $req, Response $res ) {
+
+	$body = $req->getBody();
+	$username = isset( $body["username"] ) ? $body["username"] : null;
+	$password = isset( $body["password"] ) ? $body["password"] : null;
+
+	if ( searchMBSecurity::verify_password( $username, $password ) ) {
+
+		$jwt = searchMBSecurity::generate_jwt( $username );
+		$res->sendJson( array( 'accessToken' => $jwt ) );
 
 	} else {
 
-		$call = new searchMBCall;
-		$json = $call->searchMBCall( searchMBConfig::OmdbUrl . '?apiKey=' . searchMBConfig::OmdbApiKey . '&t=' . $params["title"] . '&y=' . $params["year"] . '&plot=' . $params["plot"] );
-
-		$header = new ResponseHeader();
-		$header->setContentType( "application/json" );
-		$status = new ResponseStatus( ResponseStatus::OkCode );
-
-		$res
-			->setHeader( $header )
-			->setStatus( $status )
-			->setBody( $json )
-			->send();
+		$res->sendText( "Incorrect username or password." );
 
 	}
 
 } );
 
-$basePipe->request( '/api/getBook', function ( Request $req, Response $res ) {
+$basePipe->request( '/getMovie', function ( Request $req, Response $res ) {
 
-	$params = $req->getParams();
+	$jwt = isset( $req->getHeader()['authorization'] ) ? explode( ' ', $req->getHeader()['authorization'] )[1] : null;
+	$username = searchMBSecurity::verify_jwt( $jwt );
 
-	if ( empty( $params['isbn'] ) ) {
+	if ( searchMBSecurity::verify_user( $username ) === true ) {
 
-		$res->sendText( "Welcome to use OpenLibrary search. Use parameter ?isbn= for searching." );
+		$params = $req->getParams();
+
+		if ( empty( $params['title'] )
+			&& empty( $params['year'] )
+			&& empty( $params['plot'] ) ) {
+
+			$res->sendText( 'Hi ' . $username . '! Welcome to use OMDB movie search. Use parameters ?title=, ?year= and/or ?plot= for searching.' );
+
+		} else {
+
+			$call = new searchMBCall;
+			$json = $call->call( searchMBConfig::OmdbUrl . '?apiKey=' . searchMBConfig::OmdbApiKey . '&t=' . $params["title"] . '&y=' . $params["year"] . '&plot=' . $params["plot"] );
+			$header = new ResponseHeader();
+			$header->setContentType( "application/json" );
+			$status = new ResponseStatus( ResponseStatus::OkCode );
+			$res
+				->setHeader( $header )
+				->setStatus( $status )
+				->setBody( $json )
+				->send();
+
+		}
 
 	} else {
-			
-		$call = new searchMBCall;
-		$json = $call->searchMBCall( searchMBConfig::OpenLibraryUrl . 'api/books?bibkeys=ISBN:' . $params["isbn"] . '&format=json&jscmd=data');
 
-		$header = new ResponseHeader();
-		$header->setContentType( "application/json" );
-		$status = new ResponseStatus( ResponseStatus::OkCode );
+		$errorMessage = $username ? $username : 'none';
+		$res->sendJson( array(
+			'error' => 'Verifying access token failed.',
+			'error message' => $errorMessage
+		) );
 
-		$res
-			->setHeader( $header )
-			->setStatus( $status )
-			->setBody( $json )
-			->send();
+	}
+
+} );
+
+$basePipe->request( '/getBook', function ( Request $req, Response $res ) {
+
+	$jwt = isset( $req->getHeader()['authorization'] ) ? explode( ' ', $req->getHeader()['authorization'] )[1] : null;
+	$username = searchMBSecurity::verify_jwt( $jwt );
+
+	if ( searchMBSecurity::verify_user( $username ) === true ) {
+
+		$params = $req->getParams();
+
+		if ( empty( $params['isbn'] ) ) {
+
+			$res->sendText( 'Hi ' . $username . '! Welcome to use OpenLibrary search. Use parameter ?isbn= for searching.' );
+
+		} else {
+				
+			$call = new searchMBCall;
+			$json = $call->call( searchMBConfig::OpenLibraryUrl . 'api/books?bibkeys=ISBN:' . $params["isbn"] . '&format=json&jscmd=data');
+
+			$header = new ResponseHeader();
+			$header->setContentType( "application/json" );
+			$status = new ResponseStatus( ResponseStatus::OkCode );
+
+			$res
+				->setHeader( $header )
+				->setStatus( $status )
+				->setBody( $json )
+				->send();
+
+		}
+
+	} else {
+
+		$errorMessage = $username ? $username : 'none';
+		$res->sendJson( array(
+			'error' => 'Verifying access token failed.',
+			'error message' => $errorMessage
+		) );
 
 	}
 

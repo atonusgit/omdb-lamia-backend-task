@@ -4,7 +4,7 @@ namespace searchMBApp;
 
 class searchMBCall {
 
-	public function searchMBCall( $url ) {
+	public function call( $url ) {
 
 		$curl = curl_init();
 		curl_setopt( $curl, CURLOPT_URL, $url );
