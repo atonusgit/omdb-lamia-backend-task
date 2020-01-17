@@ -1,10 +1,15 @@
 <?php
 
+/**
+ *	Requests
+ *
+ *	@author Anton Valle
+ */
 namespace searchMBApp;
 
-class searchMBCall {
+class Requests {
 
-	public function call( $url ) {
+	public function curl( $url ) {
 
 		$curl = curl_init();
 		curl_setopt( $curl, CURLOPT_URL, $url );
