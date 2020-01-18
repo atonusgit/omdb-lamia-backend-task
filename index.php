@@ -12,6 +12,9 @@
  *	@source https://github.com/atonusgit/searchMB
  */
 require( 'vendor/autoload.php' );
+require( 'src/config.php' );
+require( 'src/requests.php' );
+require( 'src/security.php' );
 
 include( 'src/endpoints.php' );
 

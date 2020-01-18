@@ -5,7 +5,7 @@
  *
  *	@author Anton Valle
  */
-namespace searchMBApp;
+namespace searchMB;
 
 /**
  * PHP-JWT

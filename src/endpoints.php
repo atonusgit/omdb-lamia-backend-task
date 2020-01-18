@@ -5,13 +5,9 @@
  *
  *	@author Anton Valle
  */
-require( 'src/config.php' );
-require( 'src/requests.php' );
-require( 'src/security.php' );
-
-use searchMBApp\Config;
-use searchMBApp\Requests;
-use searchMBApp\Security;
+use searchMB\Config;
+use searchMB\Requests;
+use searchMB\Security;
 
 /**
  *	ElementaryFramework
