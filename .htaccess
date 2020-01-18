@@ -1,3 +1,4 @@
+# Redirect requests to REST endpoints
 <IfModule mod_rewrite.c>
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
@@ -5,4 +6,5 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule (.*)$ index.php/$1 [QSA,NC,L]
 </IfModule>
 
+# Disable folder indexing
 Options -Indexes
