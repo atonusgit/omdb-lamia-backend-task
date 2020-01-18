@@ -5,7 +5,6 @@
  *
  *	@author Anton Valle
  */
-require( 'vendor/autoload.php' );
 require( 'src/config.php' );
 require( 'src/requests.php' );
 require( 'src/security.php' );
@@ -15,8 +14,9 @@ use searchMBApp\Requests;
 use searchMBApp\Security;
 
 /**
- * ElementaryFramework
- * @source https://github.com/ElementaryFramework/WaterPipe
+ *	ElementaryFramework
+ *
+ *	@source https://github.com/ElementaryFramework/WaterPipe
  */
 use ElementaryFramework\WaterPipe\WaterPipe;
 use ElementaryFramework\WaterPipe\HTTP\Request\Request;
