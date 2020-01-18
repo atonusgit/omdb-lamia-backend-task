@@ -18,15 +18,7 @@ class Security {
 
 	public static function verify_password( $username, $password ) {
 
-		if ( isset ( config::users[$username] ) ) {
-
-			return hash( 'sha256', $password ) == config::users[$username]['password'] ? true : false;
-
-		} else {
-
-			return false;
-
-		}
+		return hash( 'sha256', $password ) == Config::users[$username]['password'] ? true : false;
 
 	}
 
@@ -42,21 +34,13 @@ class Security {
 
 	public static function generate_jwt( $username ) {
 
-		return JWT::encode( security::add_user_to_payload( $username ), config::AccessTokenSecret );
+		return JWT::encode( Security::add_user_to_payload( $username ), Config::AccessTokenSecret );
 
 	}
 
 	private static function verify_user( $username ) {
 
-		if ( isset ( config::users[$username] ) ) {
-
-			return config::users[$username] ? true : false;
-
-		} else {
-
-			return false;
-
-		}
+		return isset( Config::users[$username] ) ? true : false;
 			
 	}
 
@@ -78,7 +62,13 @@ class Security {
 
 	public static function verify_access( $username ) {
 
-		return security::verify_user( $username );
+		return isset( $username ) ? Security::verify_user( $username ) : false;
+
+	}
+
+	public static function validate_url( $url ) {
+
+		return filter_var( $url, FILTER_VALIDATE_URL ) ? true : false;
 
 	}
 

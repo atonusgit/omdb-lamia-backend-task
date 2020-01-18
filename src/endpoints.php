@@ -31,8 +31,8 @@ $basePipe->get( "/login", function ( Request $req, Response $res ) {
 $basePipe->post( "/login", function ( Request $req, Response $res ) {
 
 	$body = $req->getBody();
-	$username = isset( $body["username"] ) ? $body["username"] : null;
-	$password = isset( $body["password"] ) ? $body["password"] : null;
+	$username = isset( $body["username"] ) ? $body["username"] : false;
+	$password = isset( $body["password"] ) ? $body["password"] : false;
 
 	if ( Security::verify_password( $username, $password ) ) {
 
@@ -49,7 +49,7 @@ $basePipe->post( "/login", function ( Request $req, Response $res ) {
 
 $basePipe->request( '/getMovie', function ( Request $req, Response $res ) {
 
-	$jwt = isset( $req->getHeader()['authorization'] ) ? explode( ' ', $req->getHeader()['authorization'] )[1] : null;
+	$jwt = isset( $req->getHeader()['authorization'] ) ? explode( ' ', $req->getHeader()['authorization'] )[1] : false;
 	$username = Security::verify_jwt( $jwt );
 
 	if ( Security::verify_access( $username ) === true ) {
@@ -65,16 +65,27 @@ $basePipe->request( '/getMovie', function ( Request $req, Response $res ) {
 		} else {
 
 			$apiKey = isset( $params['apikey'] ) ? $params['apikey'] : Config::OmdbApiKey;
-			$call = new Requests;
-			$json = $call->curl( Config::OmdbUrl . '?apiKey=' . $apiKey . '&t=' . $params["title"] . '&y=' . $params["year"] . '&plot=' . $params["plot"] );
-			$header = new ResponseHeader();
-			$header->setContentType( "application/json" );
-			$status = new ResponseStatus( ResponseStatus::OkCode );
-			$res
-				->setHeader( $header )
-				->setStatus( $status )
-				->setBody( $json )
-				->send();
+			$response = ( new Requests )->curl( Config::OmdbUrl . '?apiKey=' . $apiKey . '&t=' . $params["title"] . '&y=' . $params["year"] . '&plot=' . $params["plot"] );
+
+			if ( $response !== false ) {
+
+				$header = new ResponseHeader();
+				$header->setContentType( "application/json" );
+				$status = new ResponseStatus( ResponseStatus::OkCode );
+				$res
+					->setHeader( $header )
+					->setStatus( $status )
+					->setBody( $response )
+					->send();
+
+			} else {
+
+				$res->sendJson( array(
+					'error' => 'Request validation failed.'
+				) );
+
+			}
+
 
 		}
 
@@ -92,7 +103,7 @@ $basePipe->request( '/getMovie', function ( Request $req, Response $res ) {
 
 $basePipe->request( '/getBook', function ( Request $req, Response $res ) {
 
-	$jwt = isset( $req->getHeader()['authorization'] ) ? explode( ' ', $req->getHeader()['authorization'] )[1] : null;
+	$jwt = isset( $req->getHeader()['authorization'] ) ? explode( ' ', $req->getHeader()['authorization'] )[1] : false;
 	$username = Security::verify_jwt( $jwt );
 
 	if ( Security::verify_access( $username ) === true ) {
@@ -104,19 +115,27 @@ $basePipe->request( '/getBook', function ( Request $req, Response $res ) {
 			$res->sendText( "Hi " . $username . "!\n\nWelcome to use OpenLibrary search. Use parameter ?isbn= for searching.\n\nExample: localhost:PORT/searchMB/getBook?isbn=9510082449" );
 
 		} else {
-				
-			$call = new Requests;
-			$json = $call->curl( Config::OpenLibraryUrl . 'api/books?bibkeys=ISBN:' . $params["isbn"] . '&format=json&jscmd=data');
 
-			$header = new ResponseHeader();
-			$header->setContentType( "application/json" );
-			$status = new ResponseStatus( ResponseStatus::OkCode );
+			$response = ( new Requests )->curl( Config::OpenLibraryUrl . 'api/books?bibkeys=ISBN:' . $params["isbn"] . '&format=json&jscmd=data');
 
-			$res
-				->setHeader( $header )
-				->setStatus( $status )
-				->setBody( $json )
-				->send();
+			if ( $response !== false ) {
+
+				$header = new ResponseHeader();
+				$header->setContentType( "application/json" );
+				$status = new ResponseStatus( ResponseStatus::OkCode );
+				$res
+					->setHeader( $header )
+					->setStatus( $status )
+					->setBody( $response )
+					->send();
+
+			} else {
+
+				$res->sendJson( array(
+					'error' => 'Request validation failed.'
+				) );
+
+			}
 
 		}
 
