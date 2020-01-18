@@ -8,8 +8,9 @@
 namespace searchMB;
 
 /**
- * PHP-JWT
- * @source https://github.com/firebase/php-jwt
+ *	PHP-JWT
+ *
+ *	@source https://github.com/firebase/php-jwt
  */
 use \Firebase\JWT\JWT;
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3fc3c358e0ebf7975c7d6dae0334f665",
+    "content-hash": "6ea9d00aff5bdbc8b7a300994e32cf79",
     "packages": [
         {
             "name": "elementaryframework/water-pipe",
